@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Profile | SocialApp</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; }
+        .nav { background: #fff; padding: 10px 30px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
+        .container { max-width: 600px; margin: 20px auto; }
+        .profile-header { background: white; padding: 30px; border-radius: 8px; text-align: center; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .stats { display: flex; justify-content: center; gap: 30px; margin-top: 15px; font-weight: bold; color: #65676b; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <strong>SocialApp</strong>
+        <a href="/">Back to Feed</a>
+    </div>
+
+    <div class="container">
+        <div class="profile-header">
+            <h1 id="profUser">@Username</h1>
+            <div class="stats">
+                <span id="followerCount">0 Followers</span>
+                <span id="followingCount">0 Following</span>
+            </div>
+        </div>
+        <h3 style="color: #65676b;">My Posts</h3>
+        <div id="userFeed"></div>
+    </div>
+
+    <script>
+        const currentUser = localStorage.getItem('userName');
+        if (!currentUser) window.location.href = "/login";
+        document.getElementById('profUser').innerText = "@" + currentUser;
+
+        async function loadProfile() {
+            // Get Stats
+            const userRes = await fetch(`/api/user/${currentUser}`);
+            const userData = await userRes.json();
+            document.getElementById('followerCount').innerText = `${userData.followers.length} Followers`;
+            document.getElementById('followingCount').innerText = `${userData.following.length} Following`;
+
+            // Get My Posts
+            const postRes = await fetch(`/api/posts/${currentUser}`);
+            const posts = await postRes.json();
+            const feed = document.getElementById('userFeed');
+            feed.innerHTML = posts.map(p => `
+                <div class="card">
+                    <p>${p.content}</p>
+                    <small style="color:gray">${p.likes.length} Likes • ${p.comments.length} Comments</small>
+                </div>
+            `).join('');
+        }
+        loadProfile();
+    </script>
+</body>
+</html>

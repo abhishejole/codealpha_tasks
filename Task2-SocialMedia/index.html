@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SocialApp | Feed</title>
+    <script>if (!localStorage.getItem('userName')) window.location.href = "/login";</script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; }
+        .nav { background: #fff; padding: 10px 30px; border-bottom: 1px solid #ddd; position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .container { max-width: 600px; margin: 20px auto; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; resize: none; box-sizing: border-box; }
+        .btn { background: #1877f2; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .follow-btn { float: right; padding: 5px 12px; font-size: 0.8rem; border-radius: 20px; transition: 0.3s; }
+        .post-user { font-weight: bold; color: #1c1e21; }
+        .actions { border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px; display: flex; gap: 20px; font-size: 0.9rem; font-weight: bold; color: #65676b; }
+        .action-btn { cursor: pointer; }
+        .comment-box { background: #f0f2f5; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.85rem; }
+        .comment-input { width: 100%; padding: 8px; border-radius: 20px; border: 1px solid #ddd; margin-top: 5px; box-sizing: border-box;}
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <strong>SocialApp</strong>
+        <span>@<b id="uDisplay"></b> | <a href="/profile">My Profile</a> | <a href="#" onclick="localStorage.clear(); location.reload();">Logout</a></span>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <textarea id="postText" rows="3" placeholder="What's on your mind?"></textarea>
+            <button class="btn" onclick="createPost()">Post</button>
+        </div>
+        <div id="feed"></div>
+    </div>
+
+    <script>
+        const currentUser = localStorage.getItem('userName');
+        document.getElementById('uDisplay').innerText = currentUser;
+
+        async function loadPosts() {
+            const res = await fetch('/api/posts');
+            const posts = await res.json();
+            const feed = document.getElementById('feed');
+            
+            feed.innerHTML = posts.map(p => {
+                const isFollowing = p.authorFollowers.includes(currentUser);
+                return `
+                <div class="card">
+                    ${p.username !== currentUser ? `
+                        <button class="btn follow-btn" 
+                                style="background: ${isFollowing ? '#34a853' : '#e4e6eb'}; color: ${isFollowing ? 'white' : 'black'}"
+                                onclick="followUser('${p.username}')">
+                            ${isFollowing ? 'Following ✓' : 'Follow +'}
+                        </button>` : ''}
+                    <span class="post-user">@${p.username}</span>
+                    <div style="margin-top:10px">${p.content}</div>
+                    <div class="actions">
+                        <span class="action-btn" onclick="likePost('${p._id}')">
+                            ${p.likes.includes(currentUser) ? '❤️' : '🤍'} Like (${p.likes.length})
+                        </span>
+                    </div>
+                    <div class="comment-box">
+                        ${p.comments.map(c => `<div><b>${c.username}:</b> ${c.text}</div>`).join('')}
+                        <input type="text" class="comment-input" placeholder="Add a comment..." 
+                               onkeypress="if(event.key === 'Enter') addComment('${p._id}', this.value)">
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        async function createPost() {
+            const content = document.getElementById('postText').value;
+            if(!content.trim()) return;
+            await fetch('/api/posts', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ username: currentUser, content }) });
+            document.getElementById('postText').value = "";
+            loadPosts();
+        }
+
+        async function likePost(id) {
+            await fetch(`/api/posts/${id}/like`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ username: currentUser }) });
+            loadPosts();
+        }
+
+        async function addComment(id, text) {
+            if(!text.trim()) return;
+            await fetch(`/api/posts/${id}/comment`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ username: currentUser, text }) });
+            loadPosts();
+        }
+
+        async function followUser(targetUser) {
+            await fetch('/api/follow', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ currentUser, targetUser }) });
+            loadPosts();
+        }
+
+        loadPosts();
+    </script>
+</body>
+</html>
