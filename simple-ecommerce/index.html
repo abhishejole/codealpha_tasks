@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E-Store | Home</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; margin: 0; }
+        .nav { background: #333; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; margin-left: 20px; font-weight: bold; }
+        .container { padding: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); }
+        .price { color: #28a745; font-weight: bold; font-size: 1.2rem; }
+        .btn { background: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; text-decoration: none; display: inline-block; width: 85%; cursor: pointer; }
+        .btn:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <strong>Simple E-Store</strong>
+        <div>
+            <a href="/store">Home</a>
+            <a href="/cart">🛒 Cart</a>
+            <a href="/" onclick="localStorage.clear()">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h3>Premium Smartphone</h3>
+            <p class="price">$500</p>
+            <a href="/product?name=Smartphone&price=500" class="btn">View Details</a>
+        </div>
+        <div class="card">
+            <h3>Powerful Laptop</h3>
+            <p class="price">$1000</p>
+            <a href="/product?name=Laptop&price=1000" class="btn">View Details</a>
+        </div>
+
+        <div class="card">
+            <h3>Smart Watch</h3>
+            <p class="price">$250</p>
+            <a href="/product?name=Smart Watch&price=250" class="btn">View Details</a>
+        </div>
+
+        <div class="card">
+            <h3>Bluetooth Speaker</h3>
+            <p class="price">$120</p>
+            <a href="/product?name=Bluetooth Speaker&price=120" class="btn">View Details</a>
+        </div>
+    </div>
+</body>
+</html>

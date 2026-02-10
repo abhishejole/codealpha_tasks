@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Details</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; background: #f4f4f4; }
+        .nav { background: #333; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: white; text-decoration: none; margin-left: 20px; font-weight: bold; }
+        .details-container { display: flex; justify-content: center; padding: 50px; }
+        .details-box { background: white; padding: 40px; border-radius: 12px; max-width: 500px; width: 100%; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .btn-add { background: #28a745; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-size: 18px; transition: 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <strong>Simple E-Store</strong>
+        <div>
+            <a href="/store">Home</a>
+            <a href="/cart">🛒 Cart</a>
+            <a href="/" onclick="localStorage.clear()">Logout</a>
+        </div>
+    </div>
+
+    <div class="details-container">
+        <div class="details-box">
+            <h1 id="pName">Product</h1>
+            <h2 id="pPrice" style="color: #28a745;">$0</h2>
+            <p style="color: #666; line-height: 1.6;">Experience the best quality with our latest release. This product is highly recommended for professionals and students alike.</p>
+            <button class="btn-add" id="addBtn" onclick="addToCart()">Add to Shopping Cart</button>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const name = params.get('name');
+        const price = parseInt(params.get('price'));
+        
+        document.getElementById('pName').innerText = name;
+        document.getElementById('pPrice').innerText = "$" + price;
+
+        function addToCart() {
+            let cart = JSON.parse(localStorage.getItem('myCart')) || [];
+            cart.push({ name, price });
+            localStorage.setItem('myCart', JSON.stringify(cart));
+            
+            // Stay on page and show success
+            const btn = document.getElementById('addBtn');
+            btn.innerText = "✅ Item Added!";
+            btn.style.background = "#218838";
+            
+            setTimeout(() => {
+                btn.innerText = "Add to Shopping Cart";
+                btn.style.background = "#28a745";
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
